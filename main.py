@@ -1,5 +1,5 @@
 import asyncio
-from common import config
+from common.config import config
 from typing import List
 from adapter.message import MessageSegment, MessageBuilder
 from adapter.onebot.client import OneBotClient
