@@ -53,7 +53,7 @@ class GithubCopilot:
                     raise Exception("Failed to create thread")
     async def get_context(self,repo):
         urlencoded = repo.replace("/", "%2F")
-        url = f"https://github.com/github-copilot/chat/implicit-context/NapNeko/NapCatQQ/{urlencoded}"
+        url = f"https://github.com/github-copilot/chat/implicit-context/{repo}/{urlencoded}"
         headers = {
             'Referer': 'https://github.com/copilot',
             'GitHub-Verified-Fetch': 'true',
@@ -68,13 +68,13 @@ class GithubCopilot:
                 else:
                     raise Exception("Failed to get context")
 
-    async def create_context(self, context,references, content, streaming=False):
+    async def create_context(self, context,references, content,repo, streaming=False):
         return {
             "content": content,
             "intent": "conversation",
             "references": context,
             "context": references,
-            "currentURL": "https://github.com/NapNeko/NapCatQQ",
+            "currentURL": "https://github.com/" + repo,
             "streaming": streaming,
             "confirmations": [],
             "customInstructions": [],
