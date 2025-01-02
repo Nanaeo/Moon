@@ -1,7 +1,7 @@
 import asyncio
 from common import config
 from typing import List
-from adapter.message import MessageSegment
+from adapter.message import MessageSegment, MessageBuilder
 from adapter.onebot.client import OneBotClient
 from adapter.onebot.message import OnebotMessage
 from application.copilot import GithubCopilot, TokenManager
@@ -14,11 +14,7 @@ repo = []
 token_manager: TokenManager = None
 
 async def msg2text(msg: List[MessageSegment]) -> str:
-    text = ""
-    for segment in msg:
-        if segment.type == 'text':
-            text += segment.data['text']
-    return text
+    return ''.join(segment.data['text'] for segment in msg if segment.type == 'text')
 
 async def handle_message(data):
     global repo
@@ -29,7 +25,7 @@ async def handle_message(data):
         
         copilot = GithubCopilot(await token_manager.get_token(), proxy=proxy)
         
-        if len(repo) == 0:
+        if not repo:
             repo.append(await copilot.get_context(config['repo']))
             print("Repository context obtained.")
         
@@ -66,13 +62,13 @@ async def generate_response(copilot, group_id, text):
     return ret
 
 async def send_response(group_id, response):
-    await bot.send_api(action='send_msg', params={'group_id': group_id, 'message': [{"type": "text", "data": {"text": response}}]})
+    msg = MessageBuilder()
+    await bot.send_api(action='send_msg', params={'group_id': group_id, 'message': msg.text(response).build().to_dict()})
     print(f"Response sent to group {group_id}.")
 
 async def main():
     global token_manager
-    cookie = config['cookie']
-    token_manager = TokenManager(cookie=cookie, proxy=proxy)
+    token_manager = TokenManager(cookie=config['cookie'], proxy=proxy)
     await bot.connect()
 
 asyncio.run(main())

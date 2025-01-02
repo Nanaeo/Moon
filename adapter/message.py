@@ -72,6 +72,9 @@ class Message:
 
     def __iter__(self) -> Iterator[MessageSegment]:
         return iter(self.segments)
+    
+    def to_dict(self) -> List[Dict[str, Union[str, Dict[str, Any]]]]:
+        return MessageSerializer.to_dict(self)
 
 class MessageBuilder:
     def __init__(self):
